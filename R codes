@@ -1,0 +1,61 @@
+# Load necessary libraries
+library(readxl)  
+library(dplyr)    
+library(ggplot2) 
+
+# Load the dataset
+file_path <- "Scholarship_Data Cleaning.xlsx"  # Adjust the file path if needed
+data <- read_excel(file_path, sheet = "Sheet1")
+
+# View the first few rows of the dataset
+head(data)
+
+# Data Cleaning
+
+# Standardize column names (optional, for easier reference)
+colnames(data) <- gsub(" ", "_", tolower(colnames(data)))
+
+# Replace missing values with NA
+data[data == ""] <- NA
+
+# Preview missing data
+summary(data)
+
+# Analysis Examples
+
+# 1. Summary Statistics for Gender
+gender_summary <- data %>%
+  group_by(your_gender) %>%
+  summarise(count = n())
+print(gender_summary)
+
+# 2. Distribution of Education Levels
+education_summary <- data %>%
+  group_by(what_is_your_level_of_education) %>%
+  summarise(count = n())
+print(education_summary)
+
+# 3. Visualization: Gender Distribution
+ggplot(gender_summary, aes(x = your_gender, y = count, fill = your_gender)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Gender Distribution", x = "Gender", y = "Count") +
+  theme_minimal()
+
+# 4. Filtering: Extracting Employed Individuals
+employed_data <- data %>%
+  filter(are_you_currently_employed_or_involved_in_any_community_service_or_volunteer_work == "Yes")
+head(employed_data)
+
+# 5. Visualization: Education Levels by Gender
+education_gender <- data %>%
+  group_by(your_gender, what_is_your_level_of_education) %>%
+  summarise(count = n())
+  
+ggplot(education_gender, aes(x = what_is_your_level_of_education, y = count, fill = your_gender)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Education Levels by Gender", x = "Education Level", y = "Count") +
+  theme_minimal()
+
+# 6. Saving a Cleaned Dataset
+cleaned_data <- data
+write.csv(cleaned_data, "cleaned_scholarship_data.csv", row.names = FALSE)
